@@ -2,8 +2,8 @@ const HERO_IMAGE = "https://cdn.poehali.dev/projects/e2df86ec-0611-4612-98f5-9be
 
 const stats = [
   { value: "7+", label: "лет на рынке" },
-  { value: "2 400", label: "объектов сдано" },
   { value: "98%", label: "клиентов довольны" },
+  { value: "Гос.", label: "заказы выполняем" },
   { value: "СПб", label: "и Ленинградская обл." },
 ];
 

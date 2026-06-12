@@ -134,13 +134,14 @@ export default function ServicesAboutAdvantages({ scrollTo }: ServicesAboutAdvan
               <span className="gold-divider mb-8 block" />
               <p className="font-body font-light text-base leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.65)" }}>
                 С 2018 года мы выполняем полный цикл строительно-отделочных работ: от
-                разработки дизайн-проекта до финальной уборки объекта. За эти годы
-                сдали более 2 400 объектов в Москве и регионах.
+                разработки дизайн-проекта до финальной уборки объекта. Работаем
+                в Санкт-Петербурге и Ленинградской области.
               </p>
               <p className="font-body font-light text-base leading-relaxed mb-10" style={{ color: "rgba(255,255,255,0.65)" }}>
-                Работаем с частными заказчиками, застройщиками и корпоративными
-                клиентами. Наш принцип — никаких субподрядчиков. Все мастера в
-                штате, все материалы от проверенных производителей.
+                Работаем с частными заказчиками, застройщиками, корпоративными
+                клиентами и по государственным заказам. Наш принцип — никаких
+                субподрядчиков. Все мастера в штате, все материалы от проверенных
+                производителей.
               </p>
               <button
                 className="px-8 py-4 font-display font-medium text-sm uppercase transition-opacity hover:opacity-85"
