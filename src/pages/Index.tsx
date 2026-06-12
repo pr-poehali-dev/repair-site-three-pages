@@ -37,7 +37,7 @@ const services = [
 ];
 
 const stats = [
-  { value: "15+", label: "лет на рынке" },
+  { value: "7+", label: "лет на рынке" },
   { value: "2 400", label: "объектов сдано" },
   { value: "98%", label: "клиентов довольны" },
   { value: "6", label: "городов присутствия" },
@@ -46,18 +46,13 @@ const stats = [
 const advantages = [
   {
     icon: "ShieldCheck",
-    title: "Гарантия 3 года",
+    title: "Гарантия 2 года",
     desc: "Даём письменную гарантию на все виды выполненных работ без исключений.",
   },
   {
     icon: "Clock",
     title: "Точно в срок",
     desc: "Фиксируем сроки в договоре. Штраф за каждый день просрочки — ваша защита.",
-  },
-  {
-    icon: "FileText",
-    title: "Прозрачная смета",
-    desc: "Детальная смета до начала работ. Цена не меняется без вашего согласования.",
   },
   {
     icon: "Users",
@@ -99,12 +94,12 @@ export default function Index() {
               style={{ background: "var(--brand-gold)" }}
             >
               <span className="font-display font-bold text-sm" style={{ color: "var(--brand-dark)" }}>
-                СГ
+                М
               </span>
             </div>
             <div>
               <div className="font-display font-semibold text-white text-lg leading-none tracking-wide">
-                СТРОЙГРУПП
+                ИП МАСАЛОВ
               </div>
               <div
                 className="font-body font-light tracking-widest uppercase"
@@ -196,7 +191,7 @@ export default function Index() {
                 className="font-body text-xs tracking-widest uppercase font-light"
                 style={{ color: "var(--brand-gold)" }}
               >
-                Работаем с 2009 года
+                Работаем с 2018 года
               </span>
             </div>
 
@@ -354,7 +349,7 @@ export default function Index() {
               </h2>
               <span className="gold-divider mb-8 block" />
               <p className="font-body font-light text-base leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.65)" }}>
-                С 2009 года мы выполняем полный цикл строительно-отделочных работ: от
+                С 2018 года мы выполняем полный цикл строительно-отделочных работ: от
                 разработки дизайн-проекта до финальной уборки объекта. За эти годы
                 сдали более 2 400 объектов в Москве и регионах.
               </p>
@@ -375,7 +370,7 @@ export default function Index() {
             <div className="grid grid-cols-2 gap-4">
               {[
                 { num: "01", title: "Замер и консультация", desc: "Выезжаем бесплатно в день обращения" },
-                { num: "02", title: "Смета за 24 часа", desc: "Детальный расчёт без скрытых платежей" },
+                { num: "02", title: "Согласование работ", desc: "Обсуждаем объём и материалы под ваши задачи" },
                 { num: "03", title: "Договор и фиксация цены", desc: "Цена и сроки прописаны в договоре" },
                 { num: "04", title: "Сдача объекта", desc: "Принимаете работу по чек-листу" },
               ].map((step, i) => (
@@ -577,12 +572,12 @@ export default function Index() {
               className="w-6 h-6 flex items-center justify-center"
               style={{ background: "var(--brand-gold)" }}
             >
-              <span className="font-display font-bold text-xs" style={{ color: "var(--brand-dark)" }}>СГ</span>
+              <span className="font-display font-bold text-xs" style={{ color: "var(--brand-dark)" }}>М</span>
             </div>
-            <span className="font-display text-sm font-medium text-white tracking-wide">СТРОЙГРУПП</span>
+            <span className="font-display text-sm font-medium text-white tracking-wide">ИП МАСАЛОВ</span>
           </div>
           <p className="font-body text-xs text-center" style={{ color: "rgba(255,255,255,0.3)" }}>
-            © 2009–2026 СтройГрупп. Все права защищены.
+            © 2018–2026 ИП Масалов. Все права защищены.
           </p>
           <div className="flex gap-6">
             {navLinks.map((l) => (
