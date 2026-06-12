@@ -97,16 +97,8 @@ export default function Index() {
                 М
               </span>
             </div>
-            <div>
-              <div className="font-display font-semibold text-white text-lg leading-none tracking-wide">
-                ИП МАСАЛОВ
-              </div>
-              <div
-                className="font-body font-light tracking-widest uppercase"
-                style={{ color: "var(--brand-gold)", fontSize: "9px" }}
-              >
-                ремонт и благоустройство
-              </div>
+            <div className="font-display font-semibold text-white text-lg leading-none tracking-wide">
+              ИП МАСАЛОВ
             </div>
           </div>
 
@@ -126,12 +118,6 @@ export default function Index() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            <a
-              href="tel:+79052104884"
-              className="font-display text-white text-base font-medium tracking-wide hover:opacity-80 transition-opacity"
-            >
-              +7 905 210-48-84
-            </a>
             <button
               className="px-5 py-2 text-sm font-body font-medium tracking-wider uppercase transition-opacity hover:opacity-85"
               style={{ background: "var(--brand-gold)", color: "var(--brand-dark)" }}
