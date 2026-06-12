@@ -40,7 +40,7 @@ const stats = [
   { value: "7+", label: "лет на рынке" },
   { value: "2 400", label: "объектов сдано" },
   { value: "98%", label: "клиентов довольны" },
-  { value: "6", label: "городов присутствия" },
+  { value: "СПб", label: "и Ленинградская обл." },
 ];
 
 const advantages = [
@@ -127,10 +127,10 @@ export default function Index() {
 
           <div className="hidden md:flex items-center gap-4">
             <a
-              href="tel:+78001234567"
+              href="tel:+79052104884"
               className="font-display text-white text-base font-medium tracking-wide hover:opacity-80 transition-opacity"
             >
-              8 800 123-45-67
+              +7 905 210-48-84
             </a>
             <button
               className="px-5 py-2 text-sm font-body font-medium tracking-wider uppercase transition-opacity hover:opacity-85"
@@ -161,8 +161,8 @@ export default function Index() {
                 {l.label}
               </button>
             ))}
-            <a href="tel:+78001234567" className="font-display text-white font-medium mt-2">
-              8 800 123-45-67
+            <a href="tel:+79052104884" className="font-display text-white font-medium mt-2">
+              +7 905 210-48-84
             </a>
           </div>
         )}
@@ -210,8 +210,7 @@ export default function Index() {
               className="font-body font-light text-lg mb-10 animate-fade-in-delay-2"
               style={{ color: "rgba(255,255,255,0.78)", lineHeight: "1.7", maxWidth: "520px" }}
             >
-              Квартиры, офисы, инженерные системы и территории. Гарантия 3 года,
-              фиксированная цена, собственный штат мастеров.
+              Квартиры, офисы, инженерные системы и территории в Санкт-Петербурге и Ленинградской области. Гарантия 2 года, фиксированная цена, собственный штат мастеров.
             </p>
 
             <div className="flex flex-wrap gap-4 animate-fade-in-delay-3">
@@ -444,7 +443,7 @@ export default function Index() {
             className="font-body font-light text-base mb-8"
             style={{ color: "rgba(26,24,20,0.72)", maxWidth: "500px", margin: "0 auto 2rem" }}
           >
-            Бесплатный выезд замерщика и смета за 24 часа. Без обязательств.
+            Смета в подарок при заключении договора. Бесплатный выезд замерщика. Без обязательств.
           </p>
           <button
             className="px-10 py-4 font-display font-semibold text-base uppercase transition-all hover:opacity-90"
@@ -473,9 +472,9 @@ export default function Index() {
 
               <div className="space-y-6">
                 {[
-                  { icon: "Phone", label: "Телефон", value: "8 800 123-45-67", sub: "Бесплатно по России" },
-                  { icon: "Mail", label: "Email", value: "info@stroygrupp.ru", sub: "Ответим за 2 часа" },
-                  { icon: "MapPin", label: "Офис", value: "Москва, ул. Строительная, 15", sub: "Пн–Пт 9:00–19:00" },
+                  { icon: "Phone", label: "Телефон", value: "+7 905 210-48-84", sub: "Санкт-Петербург и ЛО" },
+                  { icon: "Mail", label: "Email", value: "masalovn@inbox.ru", sub: "Ответим за 2 часа" },
+                  { icon: "MapPin", label: "Офис", value: "просп. Обуховской Обороны, 86К", sub: "Пн–Пт 9:00–19:00" },
                 ].map((c, i) => (
                   <div key={i} className="flex items-start gap-4">
                     <div
@@ -537,6 +536,7 @@ export default function Index() {
                   <option>Сантехника</option>
                   <option>Инженерные системы</option>
                   <option>Благоустройство</option>
+                  <option>Другие строительные работы</option>
                 </select>
                 <textarea
                   rows={3}
