@@ -1,0 +1,2 @@
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS assigned_foreman_id INTEGER REFERENCES users(id);
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS assigned_foreman_name VARCHAR(255) NOT NULL DEFAULT '';

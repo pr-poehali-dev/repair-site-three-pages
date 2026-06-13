@@ -48,7 +48,7 @@ def is_manager(login: str, password: str) -> bool:
 
 
 def handler(event: dict, context) -> dict:
-    '''Приём заявок с формы обратной связи и просмотр их прорабами в личном кабинете.'''
+    '''Приём заявок с формы обратной связи; управленец назначает прораба на заявку.'''
     method = event.get('httpMethod', 'GET')
     if method == 'OPTIONS':
         return {'statusCode': 200, 'headers': cors_headers(), 'body': ''}
@@ -61,6 +61,7 @@ def handler(event: dict, context) -> dict:
     conn = get_conn()
     cur = conn.cursor()
     try:
+        # Публичное действие: создать заявку
         if method == 'POST' and action == 'create':
             body = json.loads(event.get('body') or '{}')
             name = esc(body.get('name', '').strip())
@@ -81,29 +82,72 @@ def handler(event: dict, context) -> dict:
         mgr_pwd = headers.get('X-Manager-Password') or headers.get('x-manager-password') or ''
         is_mgr = is_manager(mgr_login, mgr_pwd)
         user = get_user(cur, token)
+
         if not is_mgr and (not user or user['role'] != 'foreman'):
             return resp(401, {'error': 'Доступ только для прораба или управленца'})
 
         if method == 'GET' and action == 'list':
             cur.execute(
-                "SELECT r.id, r.name, r.phone, r.email, r.message, r.status, r.created_at, u.full_name "
-                "FROM requests r LEFT JOIN users u ON u.id = r.taken_by ORDER BY r.created_at DESC"
+                "SELECT r.id, r.name, r.phone, r.email, r.message, r.status, r.created_at, "
+                "u.full_name, f.id, f.full_name "
+                "FROM requests r "
+                "LEFT JOIN users u ON u.id = r.taken_by "
+                "LEFT JOIN users f ON f.id = r.assigned_foreman_id "
+                "ORDER BY r.created_at DESC"
             )
             items = [
-                {'id': r[0], 'name': r[1], 'phone': r[2], 'email': r[3], 'message': r[4],
-                 'status': r[5], 'created_at': r[6].isoformat(), 'taken_by': r[7]} for r in cur.fetchall()
+                {
+                    'id': r[0], 'name': r[1], 'phone': r[2], 'email': r[3],
+                    'message': r[4], 'status': r[5], 'created_at': r[6].isoformat(),
+                    'taken_by': r[7],
+                    'assigned_foreman_id': r[8],
+                    'assigned_foreman_name': r[9] or '',
+                }
+                for r in cur.fetchall()
             ]
             return resp(200, {'requests': items})
 
-        if method == 'POST' and action == 'take':
-            body = json.loads(event.get('body') or '{}')
+        # Получить список прорабов (только для управленца)
+        if method == 'GET' and action == 'foremen':
+            if not is_mgr:
+                return resp(403, {'error': 'Только для управленца'})
+            cur.execute("SELECT id, full_name, email FROM users WHERE role = 'foreman' ORDER BY full_name")
+            foremen = [{'id': r[0], 'full_name': r[1] or r[2], 'email': r[2]} for r in cur.fetchall()]
+            return resp(200, {'foremen': foremen})
+
+        body = json.loads(event.get('body') or '{}')
+
+        # Назначить прораба (только управленец)
+        if method == 'POST' and action == 'assign':
+            if not is_mgr:
+                return resp(403, {'error': 'Только управленец может назначать прораба'})
             rid = int(body.get('id', 0))
-            cur.execute(f"UPDATE requests SET status='in_work', taken_by={user['id']} WHERE id={rid}")
+            foreman_id = body.get('foreman_id')
+            if foreman_id:
+                fid = int(foreman_id)
+                cur.execute(f"SELECT full_name FROM users WHERE id = {fid} AND role = 'foreman'")
+                row = cur.fetchone()
+                fname = esc(row[0] if row else '')
+                cur.execute(
+                    f"UPDATE requests SET assigned_foreman_id = {fid}, assigned_foreman_name = '{fname}', "
+                    f"status = 'in_work' WHERE id = {rid}"
+                )
+            else:
+                cur.execute(
+                    f"UPDATE requests SET assigned_foreman_id = NULL, assigned_foreman_name = '', "
+                    f"status = 'new' WHERE id = {rid}"
+                )
+            conn.commit()
+            return resp(200, {'success': True})
+
+        if method == 'POST' and action == 'take':
+            rid = int(body.get('id', 0))
+            uid = user['id'] if user else 0
+            cur.execute(f"UPDATE requests SET status='in_work', taken_by={uid} WHERE id={rid}")
             conn.commit()
             return resp(200, {'success': True})
 
         if method == 'POST' and action == 'close':
-            body = json.loads(event.get('body') or '{}')
             rid = int(body.get('id', 0))
             cur.execute(f"UPDATE requests SET status='closed' WHERE id={rid}")
             conn.commit()
