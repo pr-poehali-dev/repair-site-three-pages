@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
+import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
   { label: "Услуги", href: "#services" },
@@ -15,6 +17,14 @@ interface SiteHeaderProps {
 
 export default function SiteHeader({ scrollTo }: SiteHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const goCabinet = () => {
+    if (!user) navigate("/login");
+    else navigate(user.role === "foreman" ? "/foreman" : "/cabinet");
+    setMenuOpen(false);
+  };
 
   const handleScroll = (id: string) => {
     scrollTo(id);
@@ -61,6 +71,15 @@ export default function SiteHeader({ scrollTo }: SiteHeaderProps) {
 
         <div className="hidden md:flex items-center gap-4">
           <button
+            className="flex items-center gap-2 px-3 py-2 text-sm font-body font-light tracking-wider uppercase transition-colors"
+            style={{ color: "rgba(255,255,255,0.65)" }}
+            onClick={goCabinet}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--brand-gold)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}
+          >
+            <Icon name="User" size={16} /> Кабинет
+          </button>
+          <button
             className="px-5 py-2 text-sm font-body font-medium tracking-wider uppercase transition-opacity hover:opacity-85"
             style={{ background: "var(--brand-gold)", color: "var(--brand-dark)" }}
             onClick={() => handleScroll("#contacts")}
@@ -89,6 +108,9 @@ export default function SiteHeader({ scrollTo }: SiteHeaderProps) {
               {l.label}
             </button>
           ))}
+          <button onClick={goCabinet} className="text-left flex items-center gap-2 font-body text-sm tracking-wider uppercase" style={{ color: "var(--brand-gold)" }}>
+            <Icon name="User" size={16} /> Личный кабинет
+          </button>
           <a href="tel:+79052104884" className="font-display text-white font-medium mt-2">
             +7 905 210-48-84
           </a>

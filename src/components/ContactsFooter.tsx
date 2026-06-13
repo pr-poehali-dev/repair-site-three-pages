@@ -1,4 +1,7 @@
+import { useState } from "react";
 import Icon from "@/components/ui/icon";
+import { toast } from "@/components/ui/use-toast";
+import { api, REQUESTS_URL } from "@/lib/api";
 
 const navLinks = [
   { label: "Услуги", href: "#services" },
@@ -13,6 +16,29 @@ interface ContactsFooterProps {
 }
 
 export default function ContactsFooter({ scrollTo }: ContactsFooterProps) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [workType, setWorkType] = useState("");
+  const [comment, setComment] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submitRequest = async () => {
+    if (!name.trim() || !phone.trim()) {
+      toast({ title: "Укажите имя и телефон", variant: "destructive" });
+      return;
+    }
+    setBusy(true);
+    const message = [workType, comment].filter(Boolean).join(". ");
+    const { ok } = await api(REQUESTS_URL, "create", "POST", { name, phone, message });
+    setBusy(false);
+    if (ok) {
+      toast({ title: "Заявка отправлена!", description: "Прораб свяжется с вами в ближайшее время." });
+      setName(""); setPhone(""); setWorkType(""); setComment("");
+    } else {
+      toast({ title: "Не удалось отправить заявку", variant: "destructive" });
+    }
+  };
+
   return (
     <>
       {/* CTA BANNER */}
@@ -95,21 +121,29 @@ export default function ContactsFooter({ scrollTo }: ContactsFooterProps) {
               </p>
 
               <div className="space-y-4">
-                {[
-                  { type: "text", placeholder: "Ваше имя" },
-                  { type: "tel", placeholder: "Телефон" },
-                ].map((f, i) => (
-                  <input
-                    key={i}
-                    type={f.type}
-                    placeholder={f.placeholder}
-                    className="w-full px-4 py-3 font-body text-sm outline-none transition-all"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(184,148,58,0.2)", color: "white" }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-gold)")}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(184,148,58,0.2)")}
-                  />
-                ))}
+                <input
+                  type="text"
+                  placeholder="Ваше имя"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3 font-body text-sm outline-none transition-all"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(184,148,58,0.2)", color: "white" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-gold)")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(184,148,58,0.2)")}
+                />
+                <input
+                  type="tel"
+                  placeholder="Телефон"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-4 py-3 font-body text-sm outline-none transition-all"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(184,148,58,0.2)", color: "white" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-gold)")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(184,148,58,0.2)")}
+                />
                 <select
+                  value={workType}
+                  onChange={(e) => setWorkType(e.target.value)}
                   className="w-full px-4 py-3 font-body text-sm outline-none transition-all appearance-none"
                   style={{ background: "rgba(30,28,24,0.9)", border: "1px solid rgba(184,148,58,0.2)", color: "rgba(255,255,255,0.6)" }}
                   onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-gold)")}
@@ -126,16 +160,20 @@ export default function ContactsFooter({ scrollTo }: ContactsFooterProps) {
                 <textarea
                   rows={3}
                   placeholder="Комментарий (необязательно)"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
                   className="w-full px-4 py-3 font-body text-sm outline-none transition-all resize-none"
                   style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(184,148,58,0.2)", color: "white" }}
                   onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-gold)")}
                   onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(184,148,58,0.2)")}
                 />
                 <button
-                  className="w-full py-4 font-display font-medium text-sm uppercase transition-opacity hover:opacity-85"
+                  onClick={submitRequest}
+                  disabled={busy}
+                  className="w-full py-4 font-display font-medium text-sm uppercase transition-opacity hover:opacity-85 disabled:opacity-50"
                   style={{ background: "var(--brand-gold)", color: "var(--brand-dark)", letterSpacing: "0.14em" }}
                 >
-                  Отправить заявку
+                  {busy ? "Отправка..." : "Отправить заявку"}
                 </button>
                 <p className="font-body text-xs text-center" style={{ color: "rgba(255,255,255,0.3)" }}>
                   Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности
