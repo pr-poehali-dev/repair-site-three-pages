@@ -1,6 +1,7 @@
 import SiteHeader from "@/components/SiteHeader";
 import HeroSection from "@/components/HeroSection";
 import ServicesAboutAdvantages from "@/components/ServicesAboutAdvantages";
+import PortfolioSection from "@/components/PortfolioSection";
 import ContactsFooter from "@/components/ContactsFooter";
 
 export default function Index() {
@@ -14,6 +15,7 @@ export default function Index() {
       <SiteHeader scrollTo={scrollTo} />
       <HeroSection scrollTo={scrollTo} />
       <ServicesAboutAdvantages scrollTo={scrollTo} />
+      <PortfolioSection />
       <ContactsFooter scrollTo={scrollTo} />
     </div>
   );
