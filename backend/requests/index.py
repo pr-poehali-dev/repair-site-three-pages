@@ -39,6 +39,7 @@ def is_manager(login: str, password: str) -> bool:
     pairs = [
         (os.environ.get('MANAGER_1_LOGIN', ''), os.environ.get('MANAGER_1_PASSWORD', '')),
         (os.environ.get('MANAGER_2_LOGIN', ''), os.environ.get('MANAGER_2_PASSWORD', '')),
+        (os.environ.get('MANAGER_3_LOGIN', ''), os.environ.get('MANAGER_3_PASSWORD', '')),
     ]
     for l, p in pairs:
         if l and p and login == l and password == p:
