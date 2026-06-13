@@ -87,13 +87,18 @@ def handler(event: dict, context) -> dict:
             return resp(401, {'error': 'Доступ только для прораба или управленца'})
 
         if method == 'GET' and action == 'list':
+            # Прораб видит только назначенные ему заявки
+            if not is_mgr and user and user['role'] == 'foreman':
+                where = f"WHERE r.assigned_foreman_id = {user['id']}"
+            else:
+                where = ""
             cur.execute(
                 "SELECT r.id, r.name, r.phone, r.email, r.message, r.status, r.created_at, "
                 "u.full_name, f.id, f.full_name "
                 "FROM requests r "
                 "LEFT JOIN users u ON u.id = r.taken_by "
                 "LEFT JOIN users f ON f.id = r.assigned_foreman_id "
-                "ORDER BY r.created_at DESC"
+                f"{where} ORDER BY r.created_at DESC"
             )
             items = [
                 {
