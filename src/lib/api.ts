@@ -3,6 +3,7 @@ import func2url from "../../backend/func2url.json";
 export const AUTH_URL = func2url.auth;
 export const OBJECTS_URL = func2url.objects;
 export const REQUESTS_URL = func2url.requests;
+export const CHAT_URL = func2url.chat;
 
 export interface User {
   id: number;

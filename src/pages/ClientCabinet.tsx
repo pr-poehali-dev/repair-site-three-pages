@@ -5,12 +5,16 @@ import { useAuth } from "@/context/AuthContext";
 import { api, OBJECTS_URL, BuildObject, STATUS_LABELS, formatDate } from "@/lib/api";
 import CabinetHeader from "@/components/cabinet/CabinetHeader";
 import DocumentsList from "@/components/cabinet/DocumentsList";
+import ObjectChat from "@/components/cabinet/ObjectChat";
+
+type ObjectTab = "docs" | "chat";
 
 export default function ClientCabinet() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [objects, setObjects] = useState<BuildObject[]>([]);
   const [openId, setOpenId] = useState<number | null>(null);
+  const [objectTab, setObjectTab] = useState<Record<number, ObjectTab>>({});
   const [busy, setBusy] = useState(true);
 
   useEffect(() => {
@@ -29,13 +33,16 @@ export default function ClientCabinet() {
 
   if (loading || !user) return null;
 
+  const getObjTab = (id: number): ObjectTab => objectTab[id] || "docs";
+  const setObjTab = (id: number, t: ObjectTab) => setObjectTab((prev) => ({ ...prev, [id]: t }));
+
   return (
     <div className="min-h-screen" style={{ background: "var(--brand-cream)" }}>
       <CabinetHeader title="Личный кабинет" />
       <main className="container mx-auto px-6 py-10">
         <h1 className="font-display font-bold text-2xl mb-2" style={{ color: "var(--brand-dark)" }}>Мои объекты</h1>
         <p className="font-body font-light text-sm mb-8" style={{ color: "var(--brand-stone)" }}>
-          Здесь видны сроки работ, документы и фотоотчёты по вашим объектам.
+          Сроки работ, документы, фотоотчёты и чат с прорабом по вашим объектам.
         </p>
 
         {busy ? (
@@ -51,8 +58,10 @@ export default function ClientCabinet() {
           <div className="space-y-4">
             {objects.map((o) => {
               const open = openId === o.id;
+              const ot = getObjTab(o.id);
               return (
                 <div key={o.id} className="rounded-lg overflow-hidden" style={{ background: "var(--brand-warm-white)", border: "1px solid rgba(74,70,64,0.12)" }}>
+                  {/* Header */}
                   <button onClick={() => setOpenId(open ? null : o.id)} className="w-full text-left p-5 flex items-start justify-between gap-4">
                     <div>
                       <h3 className="font-display font-semibold text-lg" style={{ color: "var(--brand-dark)" }}>{o.title}</h3>
@@ -68,10 +77,35 @@ export default function ClientCabinet() {
                     </div>
                     <Icon name={open ? "ChevronUp" : "ChevronDown"} size={20} style={{ color: "var(--brand-stone)" }} />
                   </button>
+
+                  {/* Body */}
                   {open && (
-                    <div className="px-5 pb-5 pt-1">
+                    <div className="px-5 pb-5">
                       {o.description && <p className="font-body text-sm mb-4" style={{ color: "var(--brand-stone)" }}>{o.description}</p>}
-                      <DocumentsList objectId={o.id} />
+
+                      {/* Object sub-tabs */}
+                      <div className="flex gap-2 mb-4">
+                        {([
+                          { v: "docs", l: "Документы и фото", icon: "FileText" },
+                          { v: "chat", l: "Чат с прорабом", icon: "MessageCircle" },
+                        ] as { v: ObjectTab; l: string; icon: string }[]).map((t) => (
+                          <button
+                            key={t.v}
+                            onClick={() => setObjTab(o.id, t.v)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 font-body text-xs rounded-md transition-colors"
+                            style={ot === t.v
+                              ? { background: "var(--brand-gold)", color: "var(--brand-dark)" }
+                              : { background: "var(--brand-cream)", color: "var(--brand-stone)", border: "1px solid rgba(74,70,64,0.15)" }}
+                          >
+                            <Icon name={t.icon} size={13} /> {t.l}
+                          </button>
+                        ))}
+                      </div>
+
+                      {ot === "docs" && <DocumentsList objectId={o.id} />}
+                      {ot === "chat" && (
+                        <ObjectChat objectId={o.id} myId={user.id} myRole="client" />
+                      )}
                     </div>
                   )}
                 </div>

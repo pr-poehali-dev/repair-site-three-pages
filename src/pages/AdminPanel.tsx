@@ -5,6 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 import { api, AUTH_URL, formatDate } from "@/lib/api";
 import PortfolioManager from "@/components/cabinet/PortfolioManager";
 import RequestsPanelManager from "@/components/cabinet/RequestsPanelManager";
+import TeamChat from "@/components/cabinet/TeamChat";
 
 interface Foreman {
   id: number;
@@ -14,7 +15,7 @@ interface Foreman {
   created_at: string;
 }
 
-type Tab = "foremen" | "portfolio" | "requests";
+type Tab = "foremen" | "portfolio" | "requests" | "team_chat";
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -124,8 +125,9 @@ export default function AdminPanel() {
         <div className="flex gap-2 mb-8 flex-wrap">
           {([
             { v: "foremen", l: "Прорабы", icon: "HardHat" },
-            { v: "portfolio", l: "Портфолио", icon: "Image" },
             { v: "requests", l: "Заявки", icon: "Inbox" },
+            { v: "team_chat", l: "Командный чат", icon: "MessageSquare" },
+            { v: "portfolio", l: "Портфолио", icon: "Image" },
           ] as { v: Tab; l: string; icon: string }[]).map((t) => (
             <button
               key={t.v}
@@ -188,6 +190,17 @@ export default function AdminPanel() {
           <>
             <h2 className="font-display font-semibold text-xl mb-6" style={{ color: "var(--brand-dark)" }}>Заявки с сайта</h2>
             <RequestsPanelManager />
+          </>
+        )}
+
+        {/* TEAM CHAT TAB */}
+        {tab === "team_chat" && (
+          <>
+            <h2 className="font-display font-semibold text-xl mb-2" style={{ color: "var(--brand-dark)" }}>Командный чат</h2>
+            <p className="font-body text-sm mb-5" style={{ color: "var(--brand-stone)" }}>Общение с прорабами команды</p>
+            <div className="max-w-2xl">
+              <TeamChat myId={0} myRole="manager" isManager />
+            </div>
           </>
         )}
       </main>
