@@ -3,7 +3,7 @@ import Icon from "@/components/ui/icon";
 import { toast } from "@/components/ui/use-toast";
 import { api, REQUESTS_URL, formatDate } from "@/lib/api";
 
-interface Req {
+export interface Req {
   id: number;
   name: string;
   phone: string;
@@ -20,7 +20,7 @@ const STATUS: Record<string, { label: string; color: string }> = {
   closed: { label: "Закрыта", color: "#7a756c" },
 };
 
-export default function RequestsPanel() {
+export default function RequestsPanel({ onCreateObject }: { onCreateObject?: (req: Req) => void }) {
   const [items, setItems] = useState<Req[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -64,6 +64,11 @@ export default function RequestsPanel() {
             <div className="flex items-center justify-between mt-3">
               <span className="font-body text-[11px]" style={{ color: "var(--brand-stone)" }}>{formatDate(r.created_at)}{r.taken_by ? ` · ${r.taken_by}` : ""}</span>
               <div className="flex gap-2">
+                {onCreateObject && r.status !== "closed" && (
+                  <button onClick={() => onCreateObject(r)} className="flex items-center gap-1 px-3 py-1.5 font-body text-xs rounded-md" style={{ background: "var(--brand-dark)", color: "var(--brand-warm-white)" }}>
+                    <Icon name="Plus" size={13} /> Создать объект
+                  </button>
+                )}
                 {r.status === "new" && (
                   <button onClick={() => act(r.id, "take")} className="px-3 py-1.5 font-body text-xs rounded-md" style={{ background: "var(--brand-gold)", color: "var(--brand-dark)" }}>Взять в работу</button>
                 )}

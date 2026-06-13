@@ -15,15 +15,24 @@ interface ClientOpt {
   email: string;
 }
 
+export interface ObjectPrefill {
+  title?: string;
+  address?: string;
+  description?: string;
+  clientEmail?: string;
+}
+
 export default function ObjectEditor({
   open,
   onOpenChange,
   edit,
+  prefill,
   onSaved,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   edit: BuildObject | null;
+  prefill?: ObjectPrefill | null;
   onSaved: () => void;
 }) {
   const [clients, setClients] = useState<ClientOpt[]>([]);
@@ -38,16 +47,23 @@ export default function ObjectEditor({
 
   useEffect(() => {
     if (open) {
-      api<{ clients: ClientOpt[] }>(OBJECTS_URL, "clients", "GET").then(({ data }) => setClients(data.clients || []));
-      setTitle(edit?.title || "");
-      setAddress(edit?.address || "");
-      setDescription(edit?.description || "");
+      api<{ clients: ClientOpt[] }>(OBJECTS_URL, "clients", "GET").then(({ data }) => {
+        const list = data.clients || [];
+        setClients(list);
+        if (!edit && prefill?.clientEmail) {
+          const match = list.find((c) => c.email.toLowerCase() === prefill.clientEmail!.toLowerCase());
+          if (match) setClientId(String(match.id));
+        }
+      });
+      setTitle(edit?.title || prefill?.title || "");
+      setAddress(edit?.address || prefill?.address || "");
+      setDescription(edit?.description || prefill?.description || "");
       setStatus(edit?.status || "in_progress");
       setStartDate(edit?.start_date || "");
       setEndDate(edit?.end_date || "");
       setClientId(edit?.client_id ? String(edit.client_id) : "");
     }
-  }, [open, edit]);
+  }, [open, edit, prefill]);
 
   const submit = async () => {
     if (!title.trim()) {

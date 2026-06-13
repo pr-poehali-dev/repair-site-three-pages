@@ -6,8 +6,8 @@ import { api, OBJECTS_URL, BuildObject, STATUS_LABELS, formatDate } from "@/lib/
 import CabinetHeader from "@/components/cabinet/CabinetHeader";
 import DocumentsList from "@/components/cabinet/DocumentsList";
 import UploadForm from "@/components/cabinet/UploadForm";
-import ObjectEditor from "@/components/cabinet/ObjectEditor";
-import RequestsPanel from "@/components/cabinet/RequestsPanel";
+import ObjectEditor, { ObjectPrefill } from "@/components/cabinet/ObjectEditor";
+import RequestsPanel, { Req } from "@/components/cabinet/RequestsPanel";
 
 export default function ForemanCabinet() {
   const navigate = useNavigate();
@@ -18,7 +18,19 @@ export default function ForemanCabinet() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editObj, setEditObj] = useState<BuildObject | null>(null);
+  const [prefill, setPrefill] = useState<ObjectPrefill | null>(null);
   const [busy, setBusy] = useState(true);
+
+  const handleCreateFromRequest = (r: Req) => {
+    setEditObj(null);
+    setPrefill({
+      title: `Заявка: ${r.name || r.phone}`,
+      description: r.message,
+      clientEmail: r.email,
+    });
+    setEditorOpen(true);
+    setTab("objects");
+  };
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
@@ -64,7 +76,7 @@ export default function ForemanCabinet() {
           <>
             <div className="flex items-center justify-between mb-5">
               <h1 className="font-display font-bold text-2xl" style={{ color: "var(--brand-dark)" }}>Мои объекты</h1>
-              <button onClick={() => { setEditObj(null); setEditorOpen(true); }} className="flex items-center gap-2 px-4 py-2 font-display text-sm uppercase tracking-wider" style={{ background: "var(--brand-gold)", color: "var(--brand-dark)" }}>
+              <button onClick={() => { setEditObj(null); setPrefill(null); setEditorOpen(true); }} className="flex items-center gap-2 px-4 py-2 font-display text-sm uppercase tracking-wider" style={{ background: "var(--brand-gold)", color: "var(--brand-dark)" }}>
                 <Icon name="Plus" size={16} /> Добавить объект
               </button>
             </div>
@@ -114,12 +126,12 @@ export default function ForemanCabinet() {
         {tab === "requests" && (
           <>
             <h1 className="font-display font-bold text-2xl mb-5" style={{ color: "var(--brand-dark)" }}>Заявки с сайта</h1>
-            <RequestsPanel />
+            <RequestsPanel onCreateObject={handleCreateFromRequest} />
           </>
         )}
       </main>
 
-      <ObjectEditor open={editorOpen} onOpenChange={setEditorOpen} edit={editObj} onSaved={loadObjects} />
+      <ObjectEditor open={editorOpen} onOpenChange={setEditorOpen} edit={editObj} prefill={prefill} onSaved={loadObjects} />
     </div>
   );
 }
