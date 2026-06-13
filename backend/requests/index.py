@@ -11,7 +11,7 @@ def cors_headers():
     return {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token',
+        'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token, X-Manager-Password',
         'Access-Control-Max-Age': '86400',
         'Content-Type': 'application/json',
     }
@@ -33,6 +33,12 @@ def get_user(cur, token: str):
     )
     row = cur.fetchone()
     return {'id': row[0], 'role': row[1]} if row else None
+
+
+def is_manager(password: str) -> bool:
+    p1 = os.environ.get('ADMIN_PASSWORD', '')
+    p2 = os.environ.get('ADMIN_PASSWORD_2', '')
+    return bool(password and (password == p1 or password == p2))
 
 
 def handler(event: dict, context) -> dict:
@@ -65,9 +71,11 @@ def handler(event: dict, context) -> dict:
             conn.commit()
             return resp(200, {'id': rid, 'success': True})
 
+        mgr_pwd = headers.get('X-Manager-Password') or headers.get('x-manager-password') or ''
+        is_mgr = is_manager(mgr_pwd)
         user = get_user(cur, token)
-        if not user or user['role'] != 'foreman':
-            return resp(401, {'error': 'Доступ только для прораба'})
+        if not is_mgr and (not user or user['role'] != 'foreman'):
+            return resp(401, {'error': 'Доступ только для прораба или управленца'})
 
         if method == 'GET' and action == 'list':
             cur.execute(

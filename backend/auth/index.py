@@ -44,8 +44,14 @@ def get_user_by_token(cur, token: str):
     return {'id': row[0], 'email': row[1], 'full_name': row[2], 'phone': row[3], 'role': row[4]}
 
 
+def is_manager(password: str) -> bool:
+    p1 = os.environ.get('ADMIN_PASSWORD', '')
+    p2 = os.environ.get('ADMIN_PASSWORD_2', '')
+    return bool(password and (password == p1 or password == p2))
+
+
 def handler(event: dict, context) -> dict:
-    '''Авторизация и регистрация пользователей: вход, регистрация заказчиков, регистрация прорабов админом, проверка сессии.'''
+    '''Авторизация и регистрация пользователей: вход, регистрация заказчиков, регистрация прорабов управленцем, проверка сессии.'''
     method = event.get('httpMethod', 'GET')
     if method == 'OPTIONS':
         return {'statusCode': 200, 'headers': cors_headers(), 'body': ''}
@@ -104,14 +110,14 @@ def handler(event: dict, context) -> dict:
 
         if method == 'POST' and action == 'admin_login':
             password = body.get('password', '')
-            if password == os.environ.get('ADMIN_PASSWORD'):
+            if is_manager(password):
                 return resp(200, {'success': True})
-            return resp(401, {'error': 'Неверный пароль администратора'})
+            return resp(401, {'error': 'Неверный пароль управленца'})
 
         if method == 'POST' and action == 'register_foreman':
             admin_password = body.get('admin_password', '')
-            if admin_password != os.environ.get('ADMIN_PASSWORD'):
-                return resp(401, {'error': 'Доступ только для администратора'})
+            if not is_manager(admin_password):
+                return resp(401, {'error': 'Доступ только для управленца'})
             email = body.get('email', '').strip().lower()
             password = body.get('password', '')
             full_name = body.get('full_name', '').strip()
@@ -131,8 +137,8 @@ def handler(event: dict, context) -> dict:
 
         if method == 'GET' and action == 'foremen':
             admin_password = params.get('admin_password', '')
-            if admin_password != os.environ.get('ADMIN_PASSWORD'):
-                return resp(401, {'error': 'Доступ только для администратора'})
+            if not is_manager(admin_password):
+                return resp(401, {'error': 'Доступ только для управленца'})
             cur.execute("SELECT id, email, full_name, phone, created_at FROM users WHERE role = 'foreman' ORDER BY created_at DESC")
             rows = cur.fetchall()
             return resp(200, {'foremen': [

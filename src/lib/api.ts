@@ -61,10 +61,22 @@ export function clearToken() {
   localStorage.removeItem("auth_token");
 }
 
-function authHeaders(): Record<string, string> {
+function authHeaders(extra?: Record<string, string>): Record<string, string> {
   return {
     "Content-Type": "application/json",
     "X-Auth-Token": getToken(),
+    ...extra,
+  };
+}
+
+export function getManagerPwd(): string {
+  return sessionStorage.getItem("admin_pwd") || "";
+}
+
+export function managerHeaders(): Record<string, string> {
+  return {
+    "Content-Type": "application/json",
+    "X-Manager-Password": getManagerPwd(),
   };
 }
 
@@ -73,12 +85,13 @@ export async function api<T = Record<string, unknown>>(
   action: string,
   method: "GET" | "POST" = "GET",
   body?: Record<string, unknown>,
-  extraQuery?: Record<string, string>
+  extraQuery?: Record<string, string>,
+  extraHeaders?: Record<string, string>
 ): Promise<{ ok: boolean; status: number; data: T }> {
   const qs = new URLSearchParams({ action, ...(extraQuery || {}) }).toString();
   const res = await fetch(`${url}?${qs}`, {
     method,
-    headers: authHeaders(),
+    headers: authHeaders(extraHeaders),
     body: method === "POST" ? JSON.stringify(body || {}) : undefined,
   });
   let data: T = {} as T;
