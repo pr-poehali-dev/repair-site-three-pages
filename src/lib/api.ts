@@ -73,9 +73,14 @@ export function getManagerPwd(): string {
   return sessionStorage.getItem("admin_pwd") || "";
 }
 
+export function getManagerLogin(): string {
+  return sessionStorage.getItem("admin_login") || "";
+}
+
 export function managerHeaders(): Record<string, string> {
   return {
     "Content-Type": "application/json",
+    "X-Manager-Login": getManagerLogin(),
     "X-Manager-Password": getManagerPwd(),
   };
 }

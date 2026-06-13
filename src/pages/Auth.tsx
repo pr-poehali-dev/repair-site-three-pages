@@ -19,6 +19,7 @@ export default function Auth() {
   const [busy, setBusy] = useState(false);
 
   // Manager login state
+  const [mgrLogin, setMgrLogin] = useState("");
   const [mgrPwd, setMgrPwd] = useState("");
   const [mgrError, setMgrError] = useState("");
   const [mgrBusy, setMgrBusy] = useState(false);
@@ -30,7 +31,8 @@ export default function Auth() {
   const reset = (s: Section) => {
     setSection(s);
     setError(""); setMgrError("");
-    setEmail(""); setPassword(""); setFullName(""); setPhone(""); setMgrPwd("");
+    setEmail(""); setPassword(""); setFullName(""); setPhone("");
+    setMgrLogin(""); setMgrPwd("");
   };
 
   const submitLogin = async () => {
@@ -48,15 +50,20 @@ export default function Auth() {
   };
 
   const submitManager = async () => {
+    if (!mgrLogin.trim() || !mgrPwd.trim()) {
+      setMgrError("Введите логин и пароль");
+      return;
+    }
     setMgrError(""); setMgrBusy(true);
     const { api, AUTH_URL } = await import("@/lib/api");
-    const { ok } = await api(AUTH_URL, "admin_login", "POST", { password: mgrPwd });
+    const { ok } = await api(AUTH_URL, "admin_login", "POST", { login: mgrLogin, password: mgrPwd });
     setMgrBusy(false);
     if (ok) {
       sessionStorage.setItem("admin_pwd", mgrPwd);
+      sessionStorage.setItem("admin_login", mgrLogin);
       navigate("/admin");
     } else {
-      setMgrError("Неверный пароль управленца");
+      setMgrError("Неверный логин или пароль");
     }
   };
 
@@ -159,8 +166,18 @@ export default function Auth() {
         {/* MANAGER LOGIN */}
         {section === "manager" && (
           <div className="p-8 rounded-lg space-y-3" style={{ background: "var(--brand-warm-white)", border: "1px solid rgba(74,70,64,0.12)" }}>
-            <p className="font-body text-sm mb-4" style={{ color: "var(--brand-stone)" }}>Введите пароль управленца</p>
-            <input className={inputCls} style={inputStyle} type="password" placeholder="Пароль" value={mgrPwd} onChange={(e) => setMgrPwd(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submitManager()} />
+            <p className="font-body text-sm mb-2" style={{ color: "var(--brand-stone)" }}>Введите логин и пароль управленца</p>
+            <input
+              className={inputCls} style={inputStyle}
+              type="text" placeholder="Логин"
+              value={mgrLogin} onChange={(e) => setMgrLogin(e.target.value)}
+            />
+            <input
+              className={inputCls} style={inputStyle}
+              type="password" placeholder="Пароль"
+              value={mgrPwd} onChange={(e) => setMgrPwd(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitManager()}
+            />
             {mgrError && <p className="font-body text-sm" style={{ color: "#c0392b" }}>{mgrError}</p>}
             <button onClick={submitManager} disabled={mgrBusy} className="w-full py-3 font-display font-medium text-sm uppercase disabled:opacity-50" style={{ background: "var(--brand-gold)", color: "var(--brand-dark)", letterSpacing: "0.12em" }}>
               {mgrBusy ? "Проверка..." : "Войти"}

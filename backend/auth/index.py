@@ -44,10 +44,15 @@ def get_user_by_token(cur, token: str):
     return {'id': row[0], 'email': row[1], 'full_name': row[2], 'phone': row[3], 'role': row[4]}
 
 
-def is_manager(password: str) -> bool:
-    p1 = os.environ.get('ADMIN_PASSWORD', '')
-    p2 = os.environ.get('ADMIN_PASSWORD_2', '')
-    return bool(password and (password == p1 or password == p2))
+def is_manager(login: str, password: str) -> bool:
+    pairs = [
+        (os.environ.get('MANAGER_1_LOGIN', ''), os.environ.get('MANAGER_1_PASSWORD', '')),
+        (os.environ.get('MANAGER_2_LOGIN', ''), os.environ.get('MANAGER_2_PASSWORD', '')),
+    ]
+    for l, p in pairs:
+        if l and p and login == l and password == p:
+            return True
+    return False
 
 
 def handler(event: dict, context) -> dict:
@@ -109,14 +114,16 @@ def handler(event: dict, context) -> dict:
             return resp(200, {'token': new_token, 'user': {'id': row[0], 'email': row[1], 'full_name': row[2], 'phone': row[3], 'role': row[4]}})
 
         if method == 'POST' and action == 'admin_login':
+            login_val = body.get('login', '')
             password = body.get('password', '')
-            if is_manager(password):
+            if is_manager(login_val, password):
                 return resp(200, {'success': True})
-            return resp(401, {'error': 'Неверный пароль управленца'})
+            return resp(401, {'error': 'Неверный логин или пароль управленца'})
 
         if method == 'POST' and action == 'register_foreman':
+            admin_login = body.get('admin_login', '')
             admin_password = body.get('admin_password', '')
-            if not is_manager(admin_password):
+            if not is_manager(admin_login, admin_password):
                 return resp(401, {'error': 'Доступ только для управленца'})
             email = body.get('email', '').strip().lower()
             password = body.get('password', '')
@@ -136,8 +143,9 @@ def handler(event: dict, context) -> dict:
             return resp(200, {'id': uid, 'email': email, 'full_name': full_name, 'role': 'foreman'})
 
         if method == 'GET' and action == 'foremen':
+            admin_login = params.get('admin_login', '')
             admin_password = params.get('admin_password', '')
-            if not is_manager(admin_password):
+            if not is_manager(admin_login, admin_password):
                 return resp(401, {'error': 'Доступ только для управленца'})
             cur.execute("SELECT id, email, full_name, phone, created_at FROM users WHERE role = 'foreman' ORDER BY created_at DESC")
             rows = cur.fetchall()

@@ -11,7 +11,7 @@ def cors_headers():
     return {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token, X-Manager-Password',
+        'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token, X-Manager-Login, X-Manager-Password',
         'Access-Control-Max-Age': '86400',
         'Content-Type': 'application/json',
     }
@@ -35,10 +35,15 @@ def get_user(cur, token: str):
     return {'id': row[0], 'role': row[1]} if row else None
 
 
-def is_manager(password: str) -> bool:
-    p1 = os.environ.get('ADMIN_PASSWORD', '')
-    p2 = os.environ.get('ADMIN_PASSWORD_2', '')
-    return bool(password and (password == p1 or password == p2))
+def is_manager(login: str, password: str) -> bool:
+    pairs = [
+        (os.environ.get('MANAGER_1_LOGIN', ''), os.environ.get('MANAGER_1_PASSWORD', '')),
+        (os.environ.get('MANAGER_2_LOGIN', ''), os.environ.get('MANAGER_2_PASSWORD', '')),
+    ]
+    for l, p in pairs:
+        if l and p and login == l and password == p:
+            return True
+    return False
 
 
 def handler(event: dict, context) -> dict:
@@ -71,8 +76,9 @@ def handler(event: dict, context) -> dict:
             conn.commit()
             return resp(200, {'id': rid, 'success': True})
 
+        mgr_login = headers.get('X-Manager-Login') or headers.get('x-manager-login') or ''
         mgr_pwd = headers.get('X-Manager-Password') or headers.get('x-manager-password') or ''
-        is_mgr = is_manager(mgr_pwd)
+        is_mgr = is_manager(mgr_login, mgr_pwd)
         user = get_user(cur, token)
         if not is_mgr and (not user or user['role'] != 'foreman'):
             return resp(401, {'error': 'Доступ только для прораба или управленца'})
